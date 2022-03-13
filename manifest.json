@@ -1,0 +1,24 @@
+{
+  "required_api_version": "^2.0.0",
+  "name": "Asana",
+  "description": "Manage Asana tasks",
+  "developer_name": "Claudio Acciaresi",
+  "icon": "images/icon.png",
+  "options": {
+    "query_debounce": 0.05
+  },
+  "preferences": [
+    {
+      "id": "asana_kw",
+      "type": "keyword",
+      "name": "Asana",
+      "default_value": "a"
+    },
+    {
+      "id": "asana_api_token",
+      "type": "input",
+      "name": "API Token",
+      "default_value": ""
+    }
+  ]
+}
