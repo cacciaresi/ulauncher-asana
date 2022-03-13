@@ -6,6 +6,8 @@ class PreferencesEventListener(EventListener):
         extension.keyword = event.preferences["asana_kw"]
         extension.api_token = event.preferences["asana_api_token"]
 
+        extension.initialize_asana_api_client()
+
 
 class PreferencesUpdateEventListener(EventListener):
     def on_event(self, event, extension):
@@ -13,3 +15,5 @@ class PreferencesUpdateEventListener(EventListener):
             extension.keyword = event.new_value
         elif event.id == "asana_api_token":
             extension.api_token = event.new_value
+
+        extension.initialize_asana_api_client()

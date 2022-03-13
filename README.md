@@ -8,11 +8,10 @@
 
 ## Features
 
-- Create a new task, including the ability to define the section for the task.
+- Create a new task, including the ability to define the Section for the task.
 - Search My Tasks, using [fulltext search](https://developers.asana.com/docs/search-tasks-in-a-workspace)
   or [typeahead](https://developers.asana.com/docs/typeahead).
-- Filter My Tasks by Tags
-- Filter My Tasks by Sections.
+- Filter My Tasks by Tags and Sections, once filtered you can continue typing to filter by task name.
 
 ## Requirements
 
@@ -37,8 +36,8 @@ can be created from [here](https://app.asana.com/0/my-apps). Set the created tok
 
 ## Usage
 
-On Ulauncher, use "a" as the default keyword to trigger the extension. By default, it will show all the available
-actions, each action will have tips on how to use them.
+On Ulauncher, use `a` as the default keyword to trigger the extension. By default, it will show all the available
+actions, each action will have information on how to use it.
 
 ## Contributing
 

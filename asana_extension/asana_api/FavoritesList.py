@@ -1,7 +1,5 @@
 import logging
 
-import asana
-
 logger = logging.getLogger(__name__)
 
 
@@ -13,12 +11,10 @@ class FavoritesList(object):
 
     def get_tags(self):
         if not FavoritesList.cached_tags:
-            api = asana.Client.access_token(self.extension.api_token)
-            me = api.users.me()
             options = {
                 "resource_type": "tag",
-                "workspace": me['workspaces'][0]['gid']
+                "workspace": self.extension.workspace_gid()
             }
-            FavoritesList.cached_tags = [t for t in api.users.get_favorites_for_user("me", options)]
+            FavoritesList.cached_tags = [t for t in self.extension.api.users.get_favorites_for_user("me", options)]
 
         return FavoritesList.cached_tags

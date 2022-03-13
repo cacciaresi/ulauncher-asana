@@ -78,12 +78,12 @@ def create_task_menu_action():
 
 
 def show_tags(extension=None):
-    tags = FavoritesList(extension).get_tags()
-    results = []
+    result_items = []
 
-    for tag in tags:
+    for tag in FavoritesList(extension).get_tags():
         on_enter = SetUserQueryAction(f'{extension.keyword} tags [{tag["name"]}] ')
-        r = ExtensionResultItem(
+
+        result_item = ExtensionResultItem(
             icon="images/tag.svg",
             name=tag["name"],
             description="Search tasks for tag",
@@ -91,26 +91,27 @@ def show_tags(extension=None):
             on_enter=on_enter
         )
 
-        results.append(r)
+        result_items.append(result_item)
 
-    return RenderResultListAction(results)
+    return RenderResultListAction(result_items)
 
 
 def show_sections(extension=None):
-    results = []
+    result_items = []
 
     for section in MyTasksSections(extension).get_list():
         on_enter = SetUserQueryAction(f'{extension.keyword} sections [{section["name"]}] ')
 
-        results.append(ExtensionResultItem(
+        result_item = ExtensionResultItem(
             icon="images/section.svg",
             name=section["name"],
-            description="Search tasks for tag",
+            description="Search tasks for section",
             highlightable=False,
-            on_enter=on_enter
-        ))
+            on_enter=on_enter)
 
-    return RenderResultListAction(results)
+        result_items.append(result_item)
+
+    return RenderResultListAction(result_items)
 
 
 def filter_tasks_by_name(tasks, selected_filter_section):

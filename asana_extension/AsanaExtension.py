@@ -1,5 +1,6 @@
 import os
 
+import asana
 import gi
 
 gi.require_version('Gtk', '3.0')
@@ -26,6 +27,9 @@ class AsanaExtension(Extension):
     keyword = None
     api_token = None
 
+    me = None
+    api = None
+
     def __init__(self):
         super(AsanaExtension, self).__init__()
         self.icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), self.ICON_FILE)
@@ -33,6 +37,16 @@ class AsanaExtension(Extension):
         self.subscribe(ItemEnterEvent, ItemEnterEventListener(self.ICON_FILE))
         self.subscribe(PreferencesEvent, PreferencesEventListener())
         self.subscribe(PreferencesUpdateEvent, PreferencesUpdateEventListener())
+
+    def initialize_asana_api_client(self):
+        if not AsanaExtension.me and self.api_token:
+            api = asana.Client.access_token(self.api_token)
+
+            AsanaExtension.me = api.users.me()
+            AsanaExtension.api = api
+
+    def workspace_gid(self):
+        return AsanaExtension.me['workspaces'][0]['gid']
 
     def get_icon(self):
         return self.ICON_FILE
