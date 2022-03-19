@@ -4,11 +4,11 @@ from ulauncher.api.client.EventListener import EventListener
 from ulauncher.api.shared.action.RenderResultListAction import RenderResultListAction
 
 from asana_extension.Utils import filter_task_action, create_task_with_section, \
-    create_task_without_section, filter_task_menu_action, create_task_menu_action, show_tags, show_sections, \
-    filter_tasks_by_name
-from asana_extension.asana_api.FavoritesList import FavoritesList
+    create_task_without_section, show_tags, show_sections, \
+    filter_tasks_by_name, show_projects, create_task, filter_tasks
 from asana_extension.asana_api.MyTasks import MyTasks
 from asana_extension.asana_api.MyTasksSections import MyTasksSections
+from asana_extension.asana_api.UserFavorites import UserFavorites
 
 
 class KeywordQueryEventListener(EventListener):
@@ -18,6 +18,9 @@ class KeywordQueryEventListener(EventListener):
     previous_section = None
     previous_section_search = []
 
+    previous_selected_project_gid = None
+    previous_project_sections_search = []
+
     def on_event(self, event, extension):
         query = event.get_argument() or ""
 
@@ -25,16 +28,19 @@ class KeywordQueryEventListener(EventListener):
             return extension.show_menu()
 
         if query == "create":
-            return create_task_menu_action()
+            return create_task()
 
         if query == "tasks":
-            return filter_task_menu_action()
+            return filter_tasks()
 
         if query == "tags":
             return show_tags(extension)
 
         if query == "sections":
             return show_sections(extension)
+
+        if query == "projects":
+            return show_projects(extension)
 
         tasks_filter = re.findall(r"^tasks\s(.*)?$", query, re.IGNORECASE)
 
@@ -54,14 +60,45 @@ class KeywordQueryEventListener(EventListener):
             return create_task_without_section(task_without_section)
 
         # Filtering by "tags [tag_name] {task_name}"
-        filter_tasks_for_tag = re.findall(r"^tags\s\[(.*?)\](.*)?$", query, re.IGNORECASE)
+        filter_tasks_for_tag = re.findall(r"^tags\s\[(.*?)](.*)?$", query, re.IGNORECASE)
         if filter_tasks_for_tag:
             return filter_tasks_with_tag(extension, filter_tasks_for_tag)
 
+        # Filtering by "projects [project_name] [section_name] {task_name}"
+        filter_for_section_from_project = re.findall(r"^projects\s\[(.*?)]\s\[(.*?)](.*)?$", query,
+                                                     re.IGNORECASE)
+        if filter_for_section_from_project:
+            return self.filter_tasks_for_section_from_project(filter_for_section_from_project)
+
+        # Select project [project_name] section"
+        select_project_section = re.findall(r"^projects\s\[(.*?)]$", query, re.IGNORECASE)
+        if select_project_section:
+            return self.select_project_section(extension, select_project_section)
+
         # Filtering by "sections [section_name] {task_name}"
-        filter_tasks_for_section = re.findall(r"^sections\s\[(.*?)\](.*)?$", query, re.IGNORECASE)
+        filter_tasks_for_section = re.findall(r"^sections\s\[(.*?)](.*)?$", query, re.IGNORECASE)
         if filter_tasks_for_section:
             return filter_tasks_with_section(extension, filter_tasks_for_section)
+
+    def select_project_section(self, extension, filter_tasks_per_project_gid):
+        project_gid = filter_tasks_per_project_gid[0]
+
+        if KeywordQueryEventListener.previous_selected_project_gid != project_gid:
+            KeywordQueryEventListener.previous_selected_project_gid = project_gid
+            all_tasks_by_section_for_project = MyTasksSections(extension).get_sections_for_project({"gid": project_gid})
+            KeywordQueryEventListener.previous_project_sections_search = all_tasks_by_section_for_project
+            print(all_tasks_by_section_for_project)
+            return RenderResultListAction([i[0] for i in all_tasks_by_section_for_project])
+        else:
+            return RenderResultListAction([i[0] for i in KeywordQueryEventListener.previous_project_sections_search])
+
+    def filter_tasks_for_section_from_project(self, filter_tasks_per_project_gid):
+        section_name = filter_tasks_per_project_gid[0][1]
+        filter_task_name = filter_tasks_per_project_gid[0][2]
+
+        for section, tasks in KeywordQueryEventListener.previous_project_sections_search:
+            if section.get_name() == section_name:
+                return filter_tasks_by_name(tasks, filter_task_name)
 
 
 def filter_tasks_with_tag(extension, filter_tasks_for_tag):
@@ -69,7 +106,7 @@ def filter_tasks_with_tag(extension, filter_tasks_for_tag):
     selected_filter = filter_tasks_for_tag[0][1]
     tag = None
 
-    for _tag in FavoritesList(extension).get_tags():
+    for _tag in UserFavorites(extension).get_tags():
         if current_tag in _tag["name"]:
             tag = _tag
 

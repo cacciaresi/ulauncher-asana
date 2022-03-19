@@ -1,20 +1,11 @@
-import logging
-import unicodedata
-
 from gi.repository import Notify
 from ulauncher.api.shared.action.OpenUrlAction import OpenUrlAction
 from ulauncher.api.shared.item.ExtensionResultItem import ExtensionResultItem
 
-logger = logging.getLogger(__name__)
-
-ASANA_BASE_URL = "https://app.asana.com/0/"
+from asana_extension.asana_api.BaseAsanaAPIModel import BaseAsanaAPIModel
 
 
-class MyTasks(object):
-    def __init__(self, extension):
-        self.extension = extension
-        self.api = self.extension.api
-        self.me = self.extension.me
+class MyTasks(BaseAsanaAPIModel):
 
     def get_for_name_typeahead(self, task_name=None):
         tasks = []
@@ -34,13 +25,9 @@ class MyTasks(object):
             if item["completed"]:
                 continue
 
-            tasks.append(self.open_task_url_result(item))
+            tasks.append(self.open_asana_model_url_result(item))
 
         return tasks
-
-    @staticmethod
-    def strip_accents(s):
-        return ''.join(c for c in unicodedata.normalize('NFD', s) if unicodedata.category(c) != 'Mn')
 
     def get_for_name_full_text(self, task_name=None):
         tasks = []
@@ -59,7 +46,7 @@ class MyTasks(object):
             name_ = item["name"]
 
             if self.strip_accents(task_name.lower()) in self.strip_accents(name_.lower()):
-                tasks.append(self.open_task_url_result(item))
+                tasks.append(self.open_asana_model_url_result(item))
 
         return tasks
 
@@ -73,7 +60,7 @@ class MyTasks(object):
         result = self.api.tasks.get_tasks_for_tag(tag["gid"], params=params, opt_fields=['completed', 'name'])
 
         for item in result:
-            tasks.append(self.open_task_url_result(item))
+            tasks.append(self.open_asana_model_url_result(item))
 
         return tasks
 
@@ -88,7 +75,7 @@ class MyTasks(object):
                                                       opt_fields=['completed', 'name'])
 
         for item in result:
-            tasks.append(self.open_task_url_result(item))
+            tasks.append(self.open_asana_model_url_result(item))
 
         return tasks
 
@@ -108,8 +95,8 @@ class MyTasks(object):
         Notify.Notification.new("Created Asana Task", "", "").show()
 
     def open_task_url_result(self, item):
-        action = OpenUrlAction(f"{ASANA_BASE_URL}{self.me['gid']}/{item['gid']}")
+        on_enter = OpenUrlAction(f"{self.base_url()}{self.me['gid']}/{item['gid']}")
         icon = f'images/{"completed" if item["completed"] else "incomplete"}_task.svg'
         name = item["name"]
 
-        return ExtensionResultItem(icon=icon, name=name, on_enter=action)
+        return ExtensionResultItem(icon=icon, name=name, on_enter=on_enter)

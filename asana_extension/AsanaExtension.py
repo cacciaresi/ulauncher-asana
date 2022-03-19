@@ -72,6 +72,11 @@ class AsanaExtension(Extension):
                  ExtensionResultItem(name="Filter by Sections",
                                      description="Find tasks by Sections",
                                      icon="images/sections.svg",
-                                     on_enter=SetUserQueryAction("%s sections " % keyword))]
+                                     on_enter=SetUserQueryAction("%s sections " % keyword)),
+
+                 ExtensionResultItem(name="Browse Projects by Section",
+                                     description="Quickly navigate your projects by Sections",
+                                     icon="images/projects.svg",
+                                     on_enter=SetUserQueryAction("%s projects " % keyword))]
 
         return RenderResultListAction(items)

@@ -3,9 +3,9 @@ from ulauncher.api.shared.action.RenderResultListAction import RenderResultListA
 from ulauncher.api.shared.action.SetUserQueryAction import SetUserQueryAction
 from ulauncher.api.shared.item.ExtensionResultItem import ExtensionResultItem
 
-from asana_extension.asana_api.FavoritesList import FavoritesList
 from asana_extension.asana_api.MyTasks import MyTasks
 from asana_extension.asana_api.MyTasksSections import MyTasksSections
+from asana_extension.asana_api.UserFavorites import UserFavorites
 
 
 def filter_task_action(task):
@@ -55,7 +55,7 @@ def create_task_without_section(task_without_section):
     return RenderResultListAction([item])
 
 
-def filter_task_menu_action():
+def filter_tasks():
     return RenderResultListAction([
         ExtensionResultItem(
             icon="images/keyboard.svg",
@@ -66,7 +66,7 @@ def filter_task_menu_action():
     ])
 
 
-def create_task_menu_action():
+def create_task():
     return RenderResultListAction([
         ExtensionResultItem(
             icon="images/create.svg",
@@ -80,7 +80,7 @@ def create_task_menu_action():
 def show_tags(extension=None):
     result_items = []
 
-    for tag in FavoritesList(extension).get_tags():
+    for tag in UserFavorites(extension).get_tags():
         on_enter = SetUserQueryAction(f'{extension.keyword} tags [{tag["name"]}] ')
 
         result_item = ExtensionResultItem(
@@ -108,6 +108,30 @@ def show_sections(extension=None):
             description="Search tasks for section",
             highlightable=False,
             on_enter=on_enter)
+
+        result_items.append(result_item)
+
+    return RenderResultListAction(result_items)
+
+
+def show_projects(extension=None):
+    result_items = []
+
+    for project in UserFavorites(extension).get_projects():
+        on_enter = SetUserQueryAction(f'{extension.keyword} projects [{project["gid"]}] ')
+
+        num_incomplete_tasks = project["stats"]["num_incomplete_tasks"]
+        num_tasks = project["stats"]["num_tasks"]
+
+        percentage_done = 100 - round(((num_incomplete_tasks / num_tasks) * 100), 2)
+
+        result_item = ExtensionResultItem(
+            icon="images/project_.svg",
+            name=f'{project["name"]} - [{percentage_done}% - {num_incomplete_tasks} tasks]',
+            description="Select a project to browse the Sections",
+            highlightable=False,
+            on_enter=on_enter
+        )
 
         result_items.append(result_item)
 
