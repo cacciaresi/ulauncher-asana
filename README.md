@@ -12,6 +12,8 @@
 - Search My Tasks, using [fulltext search](https://developers.asana.com/docs/search-tasks-in-a-workspace)
   or [typeahead](https://developers.asana.com/docs/typeahead).
 - Filter My Tasks by Tags and Sections, once filtered you can continue typing to filter by task name.
+- Navigate [favorite Projects](https://developers.asana.com/docs/get-a-users-favorites) by Section and then filtering by
+  tasks.
 
 ## Requirements
 
