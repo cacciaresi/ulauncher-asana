@@ -87,10 +87,13 @@ class KeywordQueryEventListener(EventListener):
             KeywordQueryEventListener.previous_selected_project_gid = project_gid
             all_tasks_by_section_for_project = MyTasksSections(extension).get_sections_for_project({"gid": project_gid})
             KeywordQueryEventListener.previous_project_sections_search = all_tasks_by_section_for_project
-            print(all_tasks_by_section_for_project)
-            return RenderResultListAction([i[0] for i in all_tasks_by_section_for_project])
-        else:
-            return RenderResultListAction([i[0] for i in KeywordQueryEventListener.previous_project_sections_search])
+
+        project_sections = []
+
+        for (section, tasks) in KeywordQueryEventListener.previous_project_sections_search:
+            project_sections.append(section)
+
+        return RenderResultListAction(project_sections)
 
     def filter_tasks_for_section_from_project(self, filter_tasks_per_project_gid):
         section_name = filter_tasks_per_project_gid[0][1]
