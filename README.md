@@ -21,7 +21,7 @@
 - [Python](https://www.python.org) >= 3
 - Official [Asana](https://github.com/Asana/python-asana) Python package.
 
-You **must install** the official Asana package using: `pip3 install asana --user`
+You **must install** the official Asana 2.0.0 package using: `pip3 install asana==2.0.0 --user`
 
 ## Install
 
