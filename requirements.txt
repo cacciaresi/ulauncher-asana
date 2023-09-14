@@ -1,1 +1,1 @@
-asana
+asana==2.0.0
